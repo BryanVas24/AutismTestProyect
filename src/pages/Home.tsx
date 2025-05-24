@@ -1,6 +1,7 @@
 import CardForInformation from "../components/common/CardForInformation";
 import medicos from "/headerHomeimage.jpg";
 import medicaExamen from "/sectionHomeimage.jpg";
+import medicaDepie from "/medica.jpg";
 import { autismMedicalData } from "../data/CardInformationInfo";
 import { Link } from "react-router-dom";
 
@@ -46,7 +47,7 @@ export default function Home() {
           <button className="my-10 hover:scale-105 transition ease-in-out hover:shadow-xl ">
             <Link
               className=" bg-sky-500 text-xl  hover:bg-sky-600 text-white p-2 rounded-md"
-              to={"/dashboard"}
+              to={"/"}
             >
               Más información acá
             </Link>
@@ -58,6 +59,34 @@ export default function Home() {
             src={medicaExamen}
             alt="imagen que indica que hagas el examen con nosotros"
           />
+        </div>
+      </section>
+      <section className="container mx-auto ">
+        <img className="w-56" src={medicaDepie} alt="imagen" />
+        <div className="bg-sky-500 text-white rounded-md p-5 mb-5">
+          <h2 className=" text-center text-3xl font-bold mb-3">
+            ¿Eres medico?
+          </h2>
+          <hr />
+          <p className="text-lg p-2">
+            Los médicos deben estar capacitados para reconocer los signos
+            tempranos del autismo (ej.: falta de contacto visual, retraso en el
+            lenguaje, comportamientos repetitivos) y derivar a especialistas
+            (neurólogos, psiquiatras infantiles o psicólogos) para una
+            evaluación integral. El uso de herramientas estandarizadas como el
+            M-CHAT (para niños pequeños) o el ADOS-2 puede mejorar la precisión
+            del diagnóstico.
+          </p>
+          <div className="flex justify-center">
+            <button className="my-10 hover:scale-105 transition ease-in-out hover:shadow-xl ">
+              <Link
+                className=" bg-white text-xl  hover:bg-gray-100 text-sky-500 p-2 rounded-md"
+                to={"/login"}
+              >
+                inicia sesión
+              </Link>
+            </button>
+          </div>
         </div>
       </section>
     </main>
