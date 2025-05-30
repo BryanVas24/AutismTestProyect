@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, type ChangeEvent, type FormEvent } from "react";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import type { IResponse } from "../../types/Response";
+import { Login } from "../../api/AuthApi";
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -12,7 +14,7 @@ export default function LoginForm() {
     password: "",
   });
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
 
@@ -20,7 +22,7 @@ export default function LoginForm() {
     setShowPassword(!showPassword);
   };
 
-  const handleLoginSubmit = async (e) => {
+  const handleLoginSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -31,9 +33,20 @@ export default function LoginForm() {
     }
 
     try {
-      console.log("Datos de login:", loginData);
-      toast.success("Inicio de sesión exitoso!");
-      navigate("/sistem");
+      const response: IResponse<unknown> = await Login({
+        correo: loginData.email,
+        password: loginData.password,
+      });
+      console.log(response);
+      if (response.status) {
+        localStorage.setItem("data", JSON.stringify(response.value!));
+        toast.success("Inicio de sesión exitoso!");
+        navigate("/sistem");
+      } else {
+        // console.log(response.msg);
+        toast.error(response.msg);
+      }
+      // toast.success("Inicio de sesión exitoso!");
     } catch (error) {
       console.error(error);
       toast.error("Error al iniciar sesión");

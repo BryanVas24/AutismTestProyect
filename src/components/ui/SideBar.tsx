@@ -72,7 +72,7 @@ export default function SideBar() {
               <li key={link.to}>
                 <NavLink
                   to={link.to}
-                  end={link.to === "/sistem"} // Solución clave aquí
+                  end={link.to === "/sistem"}
                   onClick={() => isMobile && setIsOpen(false)}
                   className={({ isActive }) =>
                     `flex items-center p-3 rounded-lg transition-colors ${
