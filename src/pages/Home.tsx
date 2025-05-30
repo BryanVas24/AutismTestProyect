@@ -8,6 +8,11 @@ import { Link } from "react-router-dom";
 export default function Home() {
   return (
     <main className="relative">
+      <nav className="bg-sky-500 w-full rounded-b-2xl transition ease-in-out hover:scale-110 p-3 fixed shadow text-white text-center text-2xl">
+        <Link className="hover:text-sky-900 hover:underline " to={"/login"}>
+          Ir a login
+        </Link>
+      </nav>
       {/*Vaya majes esto es lo de la puta imagen */}
       <header className="flex justify-center p-5">
         <img className="lg:w-4/5 lg:h-[70vh]" src={medicos} alt="doctores" />

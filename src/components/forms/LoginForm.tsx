@@ -1,10 +1,12 @@
 import { useState, type ChangeEvent, type FormEvent } from "react";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Login } from "../../api/AuthApi";
+import { useNavigate } from "react-router-dom";
 import type { IResponse } from "../../types/Response";
+import { Login } from "../../api/AuthApi";
 
 export default function LoginForm() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({
@@ -31,14 +33,15 @@ export default function LoginForm() {
     }
 
     try {
-      console.log("Datos de login:", loginData);
       const response: IResponse<unknown> = await Login({
         correo: loginData.email,
         password: loginData.password,
       });
+      console.log(response);
       if (response.status) {
-        window.location.href = "/";
         localStorage.setItem("data", JSON.stringify(response.value!));
+        toast.success("Inicio de sesión exitoso!");
+        navigate("/sistem");
       } else {
         // console.log(response.msg);
         toast.error(response.msg);
@@ -90,7 +93,7 @@ export default function LoginForm() {
               value={loginData.password}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 pr-10"
-              placeholder="••••••••"
+              placeholder={showPassword ? "Contraseña" : "••••••••"}
             />
             <button
               type="button"
