@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 export default function LoginForm() {
+  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [loginData, setLoginData] = useState({
@@ -31,6 +33,7 @@ export default function LoginForm() {
     try {
       console.log("Datos de login:", loginData);
       toast.success("Inicio de sesión exitoso!");
+      navigate("/sistem");
     } catch (error) {
       console.error(error);
       toast.error("Error al iniciar sesión");
@@ -77,7 +80,7 @@ export default function LoginForm() {
               value={loginData.password}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 pr-10"
-              placeholder="••••••••"
+              placeholder={showPassword ? "Contraseña" : "••••••••"}
             />
             <button
               type="button"
