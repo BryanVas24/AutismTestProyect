@@ -4,6 +4,8 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import type { IResponse } from "../../types/Response";
 import { Login } from "../../api/AuthApi";
+import { useStore } from "../../context/store";
+import type { User } from "../../types/general";
 
 export default function LoginForm() {
   const navigate = useNavigate();
@@ -14,6 +16,9 @@ export default function LoginForm() {
     password: "",
   });
 
+  //fucking contexto
+  const setUser = useStore((state) => state.setUser);
+  //Fucking handleChange (le puse comentario pa que no se confundan con el de arriba)
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     setLoginData({ ...loginData, [e.target.name]: e.target.value });
   };
@@ -33,17 +38,16 @@ export default function LoginForm() {
     }
 
     try {
-      const response: IResponse<unknown> = await Login({
+      const response: IResponse<User> = await Login({
         correo: loginData.email,
         password: loginData.password,
       });
-      console.log(response);
+
       if (response.status) {
-        localStorage.setItem("data", JSON.stringify(response.value!));
+        setUser(response.value!);
         toast.success("Inicio de sesión exitoso!");
         navigate("/sistem");
       } else {
-        // console.log(response.msg);
         toast.error(response.msg);
       }
       // toast.success("Inicio de sesión exitoso!");

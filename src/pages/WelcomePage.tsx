@@ -2,7 +2,7 @@ import { FaInfoCircle, FaShieldAlt } from "react-icons/fa";
 
 export default function WelcomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex flex-col items-center justify-center p-6">
+    <div className=" h-full bg-gradient-to-b from-blue-50 to-white flex flex-col items-center justify-center p-6">
       <div className="max-w-2xl w-full bg-white rounded-xl shadow-md p-8 space-y-6">
         <div className="text-center">
           <h1 className="text-3xl md:text-4xl font-bold text-sky-600 mb-3">

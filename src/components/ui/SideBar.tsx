@@ -5,16 +5,27 @@ import {
   FaHome,
   FaBars,
   FaTimes,
+  FaUserPlus,
 } from "react-icons/fa";
 import { GrUserManager } from "react-icons/gr";
 import { NavLink } from "react-router-dom";
+import { useStore } from "../../context/store";
+import { toast } from "react-toastify";
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
+  const user = useStore((state) => state.user);
+  const setUser = useStore((state) => state.setUser);
+
   const navLinks = [
     { to: "/sistem", icon: <FaHome size={20} />, label: "Inicio" },
+    {
+      to: "/sistem/usuarios",
+      icon: <FaUserPlus size={20} />,
+      label: "Usuarios",
+    },
     {
       to: "/sistem/paciente",
       icon: <FaUserInjured size={20} />,
@@ -91,8 +102,17 @@ export default function SideBar() {
         </nav>
 
         {/* Pie de página */}
-        <div className="p-4 border-t border-gray-200">
-          <button className="flex items-center w-full p-3 text-gray-600 rounded-lg hover:bg-gray-50 transition-colors">
+        <div className="p-4 border-t border-gray-200 text-center">
+          <h4>
+            {user?.nombre} {user?.apellido}
+          </h4>
+          <button
+            onClick={() => {
+              setUser(null);
+              toast.success("Cerraste la sesión con éxito");
+            }}
+            className="flex items-center w-full p-3 text-gray-600 rounded-lg hover:bg-red-50 transition-colors hover:cursor-pointer"
+          >
             <FaSignOutAlt className="mr-3" />
             <span>Cerrar sesión</span>
           </button>

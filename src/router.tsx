@@ -7,6 +7,7 @@ import Patient from "./pages/Patient";
 import Representante from "./pages/Representante";
 import WelcomePage from "./pages/WelcomePage";
 import HomeAndLoginLayout from "./layouts/HomeAndLoginLayout";
+import Users from "./pages/Users";
 
 export const routes = createBrowserRouter([
   {
@@ -23,6 +24,7 @@ export const routes = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <WelcomePage /> },
+      { path: "/sistem/usuarios", element: <Users /> },
       { path: "/sistem/paciente", element: <Patient /> },
       { path: "/sistem/representante", element: <Representante /> },
     ],
