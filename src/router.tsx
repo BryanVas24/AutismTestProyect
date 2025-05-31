@@ -3,6 +3,7 @@ import ErrorPage from "./pages/ErrorPage";
 import MainLayout from "./layouts/MainLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
+import PruebaAutismo from "./pages/PruebaAutismo";
 import Patient from "./pages/Patient";
 import Representante from "./pages/Representante";
 import WelcomePage from "./pages/WelcomePage";
@@ -17,6 +18,7 @@ export const routes = createBrowserRouter([
     children: [
       { index: true, element: <Home /> },
       { path: "/login", element: <Login /> },
+      { path: "/prueba-autismo", element: <PruebaAutismo /> },
     ],
   },
   {
