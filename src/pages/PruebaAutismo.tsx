@@ -1,235 +1,167 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { imagenes } from "../data/images";
+import { getTest, sendAnswer } from "../api/TestApi";
+import { iniciarTour } from "../utils/tour";
+import type {
+  RespuestaGuardada,
+  TestData,
+  Pregunta,
+  PuntajePreg,
+} from "../types/PruebaTest";
 import {
   Card,
-  Radio,
   Button,
   Progress,
-  Space,
   Typography,
   Image,
   Row,
   Col,
+  message,
+  Spin,
 } from "antd";
-
-const { Title, Text } = Typography;
-
-interface PuntajePreg {
-  Id: number;
-  nombre: string;
-  valor: number;
-  preguntaId: number;
-}
-
-interface Pregunta {
-  Id: number;
-  pregunta: string;
-  num_pregunta: number;
-  testId: number;
-  puntajepregs: PuntajePreg[];
-}
-
-interface TestData {
-  Id: number;
-  nombre: string;
-  descripción: string;
-  sistema_puntaje: string;
-  edad_min: number;
-  edad_max: number;
-  preguntas: Pregunta[];
-}
-
-const imagenes = [
-  "https://pub-9f0368832e6a4e0bbadc67f565e4228f.r2.dev/40c29799-f440-4229-91bd-fa98f0f6d754-removebg-preview.png",
-  "https://pub-9f0368832e6a4e0bbadc67f565e4228f.r2.dev/6d386288-fc44-4e58-b846-653dcee4883b-removebg-preview.png",
-  "https://pub-9f0368832e6a4e0bbadc67f565e4228f.r2.dev/bac57898-be5b-43be-a5b9-8900659ea318-removebg-preview.png",
-  "https://pub-9f0368832e6a4e0bbadc67f565e4228f.r2.dev/bca39149-74d2-4342-a1c6-a7fc1fb54503-removebg-preview.png",
-  "https://pub-9f0368832e6a4e0bbadc67f565e4228f.r2.dev/c61579c0-433a-46a7-aae1-c88e4c7ca00c-removebg-preview.png",
-];
-
-const testData: TestData = {
-  Id: 1,
-  nombre: "Prueba de Autismo",
-  descripción: "Evaluación inicial para detección de rasgos autistas",
-  sistema_puntaje: "Puntaje acumulativo",
-  edad_min: 3,
-  edad_max: 12,
-  preguntas: [
-    {
-      Id: 1,
-      pregunta: "¿Le gusta jugar con otros niños?",
-      num_pregunta: 1,
-      testId: 1,
-      puntajepregs: [
-        { Id: 1, nombre: "Sí, siempre", valor: 0, preguntaId: 1 },
-        { Id: 2, nombre: "A veces", valor: 1, preguntaId: 1 },
-        { Id: 3, nombre: "Rara vez", valor: 2, preguntaId: 1 },
-        { Id: 4, nombre: "Nunca", valor: 3, preguntaId: 1 },
-      ],
-    },
-    {
-      Id: 2,
-      pregunta: "¿Muestra interés por las actividades sociales?",
-      num_pregunta: 2,
-      testId: 1,
-      puntajepregs: [
-        { Id: 5, nombre: "Sí, mucho", valor: 0, preguntaId: 2 },
-        { Id: 6, nombre: "Algo", valor: 1, preguntaId: 2 },
-        { Id: 7, nombre: "Poco", valor: 2, preguntaId: 2 },
-      ],
-    },
-    {
-      Id: 3,
-      pregunta: "¿Le resulta fácil hacer nuevos amigos?",
-      num_pregunta: 3,
-      testId: 1,
-      puntajepregs: [
-        { Id: 8, nombre: "Sí, con facilidad", valor: 0, preguntaId: 3 },
-        { Id: 9, nombre: "A veces", valor: 1, preguntaId: 3 },
-        { Id: 10, nombre: "Con dificultad", valor: 2, preguntaId: 3 },
-      ],
-    },
-    {
-      Id: 4,
-      pregunta: "¿Participa en juegos grupales sin problemas?",
-      num_pregunta: 4,
-      testId: 1,
-      puntajepregs: [
-        { Id: 11, nombre: "Sí, siempre", valor: 0, preguntaId: 4 },
-        { Id: 12, nombre: "A veces", valor: 1, preguntaId: 4 },
-        { Id: 13, nombre: "Rara vez", valor: 2, preguntaId: 4 },
-        { Id: 14, nombre: "Nunca", valor: 3, preguntaId: 4 },
-      ],
-    },
-    {
-      Id: 5,
-      pregunta: "¿Sigue instrucciones cuando se le indican?",
-      num_pregunta: 5,
-      testId: 1,
-      puntajepregs: [
-        { Id: 15, nombre: "Sí, siempre", valor: 0, preguntaId: 5 },
-        { Id: 16, nombre: "La mayoría de las veces", valor: 1, preguntaId: 5 },
-        { Id: 17, nombre: "Pocas veces", valor: 2, preguntaId: 5 },
-        { Id: 18, nombre: "Nunca", valor: 3, preguntaId: 5 },
-      ],
-    },
-    {
-      Id: 6,
-      pregunta: "¿Se muestra cooperativo con adultos y compañeros?",
-      num_pregunta: 6,
-      testId: 1,
-      puntajepregs: [
-        { Id: 19, nombre: "Sí, siempre", valor: 0, preguntaId: 6 },
-        { Id: 20, nombre: "A veces", valor: 1, preguntaId: 6 },
-        { Id: 21, nombre: "Rara vez", valor: 2, preguntaId: 6 },
-      ],
-    },
-    {
-      Id: 7,
-      pregunta: "¿Manifiesta emociones de forma adecuada?",
-      num_pregunta: 7,
-      testId: 1,
-      puntajepregs: [
-        { Id: 22, nombre: "Sí, siempre", valor: 0, preguntaId: 7 },
-        { Id: 23, nombre: "A veces", valor: 1, preguntaId: 7 },
-        { Id: 24, nombre: "Con dificultad", valor: 2, preguntaId: 7 },
-      ],
-    },
-    {
-      Id: 8,
-      pregunta: "¿Tolera la frustración cuando algo no sale como espera?",
-      num_pregunta: 8,
-      testId: 1,
-      puntajepregs: [
-        { Id: 25, nombre: "Sí, sin problema", valor: 0, preguntaId: 8 },
-        { Id: 26, nombre: "A veces", valor: 1, preguntaId: 8 },
-        { Id: 27, nombre: "No, le cuesta mucho", valor: 2, preguntaId: 8 },
-      ],
-    },
-    {
-      Id: 9,
-      pregunta: "¿Respeta turnos para hablar o jugar?",
-      num_pregunta: 9,
-      testId: 1,
-      puntajepregs: [
-        { Id: 28, nombre: "Sí, siempre", valor: 0, preguntaId: 9 },
-        { Id: 29, nombre: "A veces", valor: 1, preguntaId: 9 },
-        { Id: 30, nombre: "Rara vez", valor: 2, preguntaId: 9 },
-      ],
-    },
-    {
-      Id: 10,
-      pregunta: "¿Comparte sus cosas con otros niños?",
-      num_pregunta: 10,
-      testId: 1,
-      puntajepregs: [
-        { Id: 31, nombre: "Sí, con gusto", valor: 0, preguntaId: 10 },
-        { Id: 32, nombre: "A veces", valor: 1, preguntaId: 10 },
-        { Id: 33, nombre: "Le cuesta mucho", valor: 2, preguntaId: 10 },
-      ],
-    },
-    {
-      Id: 11,
-      pregunta: "¿Tiene dificultades para concentrarse en una actividad?",
-      num_pregunta: 11,
-      testId: 1,
-      puntajepregs: [
-        { Id: 34, nombre: "No, se concentra bien", valor: 0, preguntaId: 11 },
-        { Id: 35, nombre: "A veces se distrae", valor: 1, preguntaId: 11 },
-        { Id: 36, nombre: "Sí, con frecuencia", valor: 2, preguntaId: 11 },
-      ],
-    },
-    {
-      Id: 12,
-      pregunta: "¿Reacciona de forma agresiva cuando algo le molesta?",
-      num_pregunta: 12,
-      testId: 1,
-      puntajepregs: [
-        { Id: 37, nombre: "No, mantiene la calma", valor: 0, preguntaId: 12 },
-        { Id: 38, nombre: "A veces", valor: 1, preguntaId: 12 },
-        { Id: 39, nombre: "Sí, con frecuencia", valor: 2, preguntaId: 12 },
-      ],
-    },
-  ],
-};
-
-interface RespuestaGuardada {
-  preguntaId: number;
-  puntajePregId: number;
-  valor: number;
-}
-
-const PruebaAutismo: React.FC<{}> = ({}) => {
+import WelcomeScreen from "../components/prueba/WelcomeScreen";
+import CompletionScreen from "../components/prueba/CompletionScreen";
+import { QuestionControls } from "../components/prueba/QuestionControls";
+import {
+  enviarTestData,
+  mapTestData,
+} from "../components/prueba/hooks/mapperData";
+const { Title } = Typography;
+const PruebaAutismo: React.FC = () => {
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const enlace = queryParams.get("enlace");
+  const testId = queryParams.get("testId");
   const [respuestas, setRespuestas] = useState<RespuestaGuardada[]>([]);
   const [preguntaActual, setPreguntaActual] = useState(0);
+  const [testData, setTestData] = useState<TestData | null>(null);
   const [valorSeleccionado, setValorSeleccionado] = useState<number | null>(
     null
   );
+  const [testStarted, setTestStarted] = useState<boolean>(false);
+  const [testCompleted, setTestCompleted] = useState<boolean>(false);
   const [imagenActual, setImagenActual] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(true);
+  const [sending, setSending] = useState<boolean>(false);
+  const [tiemposInicio, setTiemposInicio] = useState<{ [key: number]: number }>(
+    {}
+  );
+  const [contadorCambios, setContadorCambios] = useState<{
+    [key: number]: number;
+  }>({});
 
+  const cargarTestData = async () => {
+    try {
+      setLoading(true);
+      const data = await getTest({ id: testId?.toString() || "" });
+
+      if (data?.status) {
+        const mappedData = mapTestData(data);
+        setTestData(mappedData);
+        const initialTimes: { [key: number]: number } = {};
+        const initialCounters: { [key: number]: number } = {};
+
+        mappedData.preguntas.forEach((preg) => {
+          initialTimes[preg.Id] = 0;
+          initialCounters[preg.Id] = 0;
+        });
+
+        setTiemposInicio(initialTimes);
+        setContadorCambios(initialCounters);
+      } else {
+        throw new Error(data?.data?.msg || "No se pudo cargar el test");
+      }
+    } catch (err) {
+      message.error(err instanceof Error ? err.message : "Error desconocido");
+    } finally {
+      setLoading(false);
+    }
+  };
   const seleccionarImagenAleatoria = () => {
     const indiceAleatorio = Math.floor(Math.random() * imagenes.length);
     setImagenActual(imagenes[indiceAleatorio]);
   };
+  useEffect(() => {
+    if (!testData) return;
 
+    const preguntaId = testData.preguntas[preguntaActual].Id;
+    setTiemposInicio((prev) => ({
+      ...prev,
+      [preguntaId]: Date.now(),
+    }));
+  }, [preguntaActual, testData]);
   useEffect(() => {
     seleccionarImagenAleatoria();
+    cargarTestData();
   }, []);
-
   useEffect(() => {
+    if (!testData) return;
+
     const respuestaExistente = respuestas.find(
       (r) => r.preguntaId === testData.preguntas[preguntaActual].Id
     );
+
     setValorSeleccionado(
       respuestaExistente ? respuestaExistente.puntajePregId : null
     );
-  }, [preguntaActual, respuestas]);
+  }, [preguntaActual, respuestas, testData]);
 
   const manejarCambioRespuesta = (e: any) => {
-    setValorSeleccionado(Number(e.target.value));
+    const nuevoValor = Number(e.target.value);
+
+    if (!testData) return;
+
+    const preguntaId = testData.preguntas[preguntaActual].Id;
+    if (valorSeleccionado !== nuevoValor) {
+      setContadorCambios((prev) => ({
+        ...prev,
+        [preguntaId]: (prev[preguntaId] || 0) + 1,
+      }));
+    }
+
+    setValorSeleccionado(nuevoValor);
   };
 
-  const siguientePregunta = () => {
-    if (valorSeleccionado === null) return;
+  const enviarRespuesta = async (
+    pregunta: Pregunta,
+    puntaje: PuntajePreg
+  ): Promise<boolean> => {
+    if (!testData) return false;
+    const respuestaBackend = enviarTestData(
+      pregunta,
+      puntaje,
+      tiemposInicio,
+      contadorCambios
+    );
+    try {
+      setSending(true);
+      const response = await sendAnswer({
+        respuesta: respuestaBackend,
+        enlace: enlace || "",
+      });
+
+      if (response?.data?.status) {
+        setContadorCambios((prev) => ({
+          ...prev,
+          [pregunta.Id]: 0,
+        }));
+        return true;
+      } else {
+        throw new Error(response?.data?.msg || "Error al guardar respuesta");
+      }
+    } catch (err) {
+      message.error(
+        err instanceof Error ? err.message : "Error al guardar respuesta"
+      );
+      return false;
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const siguientePregunta = async () => {
+    if (valorSeleccionado === null || !testData || sending) return;
 
     const pregunta = testData.preguntas[preguntaActual];
     const puntajeSeleccionado = pregunta.puntajepregs.find(
@@ -237,44 +169,85 @@ const PruebaAutismo: React.FC<{}> = ({}) => {
     );
 
     if (!puntajeSeleccionado) return;
+    const enviado = await enviarRespuesta(pregunta, puntajeSeleccionado);
 
-    const nuevasRespuestas = respuestas.filter(
-      (r) => r.preguntaId !== pregunta.Id
-    );
+    if (enviado) {
+      const nuevasRespuestas = [
+        ...respuestas.filter((r) => r.preguntaId !== pregunta.Id),
+        {
+          preguntaId: pregunta.Id,
+          puntajePregId: puntajeSeleccionado.Id,
+          valor: puntajeSeleccionado.valor,
+        },
+      ];
+      setRespuestas(nuevasRespuestas);
 
-    nuevasRespuestas.push({
-      preguntaId: pregunta.Id,
-      puntajePregId: puntajeSeleccionado.Id,
-      valor: puntajeSeleccionado.valor,
-    });
-
-    setRespuestas(nuevasRespuestas);
-
-    if (preguntaActual < testData.preguntas.length - 1) {
-      setPreguntaActual(preguntaActual + 1);
-      seleccionarImagenAleatoria();
-    } else {
-      console.log("Test completado. Respuestas:", nuevasRespuestas);
-      const puntajeTotal = nuevasRespuestas.reduce(
-        (sum, respuesta) => sum + respuesta.valor,
-        0
-      );
-      console.log("Puntaje total:", puntajeTotal);
+      if (preguntaActual < testData.preguntas.length - 1) {
+        setPreguntaActual(preguntaActual + 1);
+        seleccionarImagenAleatoria();
+      } else {
+        message.success("Test completado con éxito");
+        setTestCompleted(true);
+      }
     }
   };
 
   const preguntaAnterior = () => {
-    if (preguntaActual > 0) {
+    if (preguntaActual > 0 && !sending) {
       setPreguntaActual(preguntaActual - 1);
       seleccionarImagenAleatoria();
     }
   };
 
-  const progreso = Math.round(
-    ((preguntaActual + (valorSeleccionado !== null ? 1 : 0)) /
-      testData.preguntas.length) *
-      100
-  );
+  const progreso = testData
+    ? Math.round(
+        ((preguntaActual + (valorSeleccionado !== null ? 1 : 0)) /
+          testData.preguntas.length) *
+          100
+      )
+    : 0;
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <Spin size="large" tip="Cargando test..." />
+      </div>
+    );
+  }
+
+  if (!testData) {
+    return (
+      <Card style={{ maxWidth: 600, margin: "0 auto", textAlign: "center" }}>
+        <Title level={4}>Error al cargar el test</Title>
+        <Button type="primary" onClick={cargarTestData}>
+          Reintentar
+        </Button>
+      </Card>
+    );
+  }
+  const reiniciarTest = () => {
+    setTestStarted(false);
+    setTestCompleted(false);
+    setPreguntaActual(0);
+    setRespuestas([]);
+    setValorSeleccionado(null);
+    seleccionarImagenAleatoria();
+  };
+
+  if (testCompleted) {
+    return <CompletionScreen onReturn={reiniciarTest} />;
+  }
+
+  if (!testStarted) {
+    return <WelcomeScreen onStartTest={() => setTestStarted(true)} />;
+  }
 
   return (
     <Card
@@ -307,74 +280,20 @@ const PruebaAutismo: React.FC<{}> = ({}) => {
         </Col>
       </Row>
 
-      <Row justify="center">
-        <Col span={24}>
-          <Title
-            level={4}
-            style={{
-              textAlign: "center",
-              marginBottom: 30,
-              padding: "0 20px",
-            }}
-          >
-            {testData.preguntas[preguntaActual].pregunta}
-          </Title>
-        </Col>
-      </Row>
-
-      <Row justify="center">
-        <Col span={24}>
-          <Radio.Group
-            onChange={manejarCambioRespuesta}
-            value={valorSeleccionado}
-            style={{ width: "100%" }}
-          >
-            <Space direction="vertical" size="middle" style={{ width: "100%" }}>
-              {testData.preguntas[preguntaActual].puntajepregs.map(
-                (puntaje, index) => (
-                  <Radio
-                    key={puntaje.Id}
-                    value={puntaje.Id}
-                    style={{
-                      display: "block",
-                      padding: "12px 16px",
-                      borderRadius: 4,
-                    }}
-                  >
-                    <Text strong>{String.fromCharCode(65 + index)}.</Text>{" "}
-                    {puntaje.nombre}
-                  </Radio>
-                )
-              )}
-            </Space>
-          </Radio.Group>
-        </Col>
-      </Row>
-
-      <Row justify="center" style={{ marginTop: 30 }}>
-        <Col span={24}>
-          <Space
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: 16,
-            }}
-          >
-            <Button onClick={preguntaAnterior} disabled={preguntaActual === 0}>
-              Anterior
-            </Button>
-            <Button
-              type="primary"
-              onClick={siguientePregunta}
-              disabled={valorSeleccionado === null}
-            >
-              {preguntaActual === testData.preguntas.length - 1
-                ? "Finalizar"
-                : "Siguiente"}
-            </Button>
-          </Space>
-        </Col>
-      </Row>
+      <QuestionControls
+        questionText={testData.preguntas[preguntaActual].pregunta}
+        options={testData.preguntas[preguntaActual].puntajepregs}
+        selectedValue={valorSeleccionado}
+        onAnswerChange={manejarCambioRespuesta}
+        onPrevious={preguntaAnterior}
+        onNext={siguientePregunta}
+        currentQuestion={preguntaActual}
+        totalQuestions={testData.preguntas.length}
+        isPreviousDisabled={preguntaActual === 0}
+        isNextDisabled={valorSeleccionado === null}
+        isLoading={sending}
+        onHelp={iniciarTour}
+      />
     </Card>
   );
 };
