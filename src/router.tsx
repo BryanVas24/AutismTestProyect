@@ -10,6 +10,7 @@ import WelcomePage from "./pages/WelcomePage";
 import HomeAndLoginLayout from "./layouts/HomeAndLoginLayout";
 import Pacientes from "./pages/Pacientes";
 import Users from "./pages/Users";
+import Auditoria from "./pages/Auditoria";
 
 export const routes = createBrowserRouter([
   {
@@ -31,6 +32,7 @@ export const routes = createBrowserRouter([
       { path: "/sistem/usuarios", element: <Users /> },
       { path: "/sistem/paciente", element: <Patient /> },
       { path: "/sistem/representante", element: <Representante /> },
+      { path: "/sistem/auditoria", element: <Auditoria /> },
     ],
   },
 ]);

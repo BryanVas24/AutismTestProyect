@@ -8,6 +8,7 @@ export type newUserDataType = {
   rol: number;
   password: string;
   passwordConfirm: string;
+  requesterId: number;
 };
 export type UserDataToEdit = {
   id: number;

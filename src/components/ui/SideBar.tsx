@@ -11,6 +11,7 @@ import { GrUserManager } from "react-icons/gr";
 import { NavLink } from "react-router-dom";
 import { useStore } from "../../context/store";
 import { toast } from "react-toastify";
+import { AiOutlineAudit } from "react-icons/ai";
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,6 +37,15 @@ export default function SideBar() {
       icon: <GrUserManager size={20} />,
       label: "Representantes",
     },
+    ...(user?.rol == 2
+      ? [
+          {
+            to: "/sistem/auditoria",
+            icon: <AiOutlineAudit size={20} />,
+            label: "Auditoría",
+          },
+        ]
+      : []),
   ];
 
   useEffect(() => {

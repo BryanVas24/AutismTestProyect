@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import SideBar from "../components/ui/SideBar";
-import Footer from "../components/ui/Footer";
+// import Footer from "../components/ui/Footer";
 import { useStore } from "../context/store";
 import { useEffect } from "react";
 
@@ -24,7 +24,7 @@ export default function MainLayout() {
         <main className="flex-1 p-4 md:p-6">
           <Outlet />
         </main>
-        <Footer />
+        {/* <Footer /> */}
       </div>
     </div>
   );

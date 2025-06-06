@@ -20,6 +20,7 @@ const INITIAL_USER_DATA: newUserDataType = {
   passwordConfirm: "",
   rol: 0,
   telefono: "",
+  requesterId: 0,
 };
 
 export default function UserForm({
@@ -44,6 +45,7 @@ export default function UserForm({
         passwordConfirm: "",
         rol: userToEdit.rol,
         telefono: userToEdit.telefono || "",
+        requesterId: currentUser!.id,
       });
     } else {
       setUserFormData(INITIAL_USER_DATA);
