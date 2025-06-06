@@ -1,7 +1,7 @@
 import axios from "axios";
 import type { newUserDataType, UserDataToEdit, UserFilters } from "../types";
 
-const API_URL = import.meta.env.VITE_API_URL + "/Usuario";
+const API_URL = import.meta.env.VITE_API_URL + "Usuario";
 
 export async function createUser(newUserData: newUserDataType) {
   try {
@@ -25,6 +25,7 @@ export async function getUsers(params: UserFilters = {}) {
         rol: params.rol || undefined,
       },
     });
+    console.log(data);
     return data.value;
   } catch (error) {
     console.error(error);
@@ -33,7 +34,6 @@ export async function getUsers(params: UserFilters = {}) {
 }
 
 export async function editUser(UserDataToEdit: UserDataToEdit) {
-  console.log(UserDataToEdit);
   try {
     const URL = `${API_URL}/${UserDataToEdit.id}`;
     const { data } = await axios.patch(URL, UserDataToEdit);

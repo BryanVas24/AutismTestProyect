@@ -52,7 +52,7 @@ export default function Users() {
       });
 
       const data = await getUsers(params);
-      setUsers(data);
+      if (data != null) setUsers(data);
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
     } finally {
