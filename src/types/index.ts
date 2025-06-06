@@ -42,3 +42,56 @@ export type filtersForAgenda = {
   especialista?: string;
   paciente?: string;
 };
+
+//Test Module madafaka
+export type newTestDataType = {
+  nombre: string;
+  descripcion: string;
+  sistema_puntaje: string;
+  edad_min: number;
+  edad_max: number;
+  requesterId: number;
+}
+
+export type TestDataToEdit = {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  sistema_puntaje: string;
+  edad_min: number;
+  edad_max: number;
+  requesterId: number;
+}
+//Para preguntas mmwebo
+export type newPreguntaDataType = {
+  pregunta: string;
+  num_pregunta: string;
+  testId: number;
+  requesterId: number;
+}
+
+export type PreguDataToEdit = {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  sistema_puntaje: string;
+  edad_min: number;
+  edad_max: number;
+  requesterId: number;
+}
+
+//Para Puntajes Preguntas caracara
+export type newPuntajePregType = {
+  nombre: string;
+  valor: number;
+  preguntaId: number;
+  requesterId: number;
+}
+
+export type PuntajePregToEdit = {
+  id: number;
+  nombre: string;
+  valor: number;
+  preguntaId: number;
+  requesterId: number;
+}
