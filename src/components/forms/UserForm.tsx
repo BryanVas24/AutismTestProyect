@@ -1,10 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { newUserDataType } from "../../types";
 import { toast } from "react-toastify";
-import { createUser } from "../../api/UserModuleApi";
+import { createUser, editUser } from "../../api/UserModuleApi";
+import type { User } from "../../types/general";
+import { useStore } from "../../context/store";
 
 type UserformProps = {
   onClose: () => void;
+  userToEdit?: User | null;
+  isEditMode?: boolean;
 };
 
 const INITIAL_USER_DATA: newUserDataType = {
@@ -18,11 +22,33 @@ const INITIAL_USER_DATA: newUserDataType = {
   telefono: "",
 };
 
-export default function UserForm({ onClose }: UserformProps) {
+export default function UserForm({
+  onClose,
+  isEditMode,
+  userToEdit,
+}: UserformProps) {
   const [userFormData, setUserFormData] =
     useState<newUserDataType>(INITIAL_USER_DATA);
 
   const [isLoading, setIsLoading] = useState(false);
+  const { user: currentUser } = useStore();
+
+  useEffect(() => {
+    if (isEditMode && userToEdit) {
+      setUserFormData({
+        nombre: userToEdit.nombre,
+        apellido: userToEdit.apellido || "",
+        correo: userToEdit.correo || "",
+        especialidad: userToEdit.especialidad || "",
+        password: "",
+        passwordConfirm: "",
+        rol: userToEdit.rol,
+        telefono: userToEdit.telefono || "",
+      });
+    } else {
+      setUserFormData(INITIAL_USER_DATA);
+    }
+  }, [isEditMode, userToEdit]);
 
   //handle perros
   const handleChangeUserForm = (
@@ -36,36 +62,50 @@ export default function UserForm({ onClose }: UserformProps) {
   };
 
   //submit perros
-  const handleSubmitUserForm = (e: React.FormEvent) => {
+  const handleSubmitUserForm = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    //Esto es lo que revisa los campos vacios majes
-    const hasEmptyValues = Object.values(userFormData).some((value) =>
-      typeof value === "string" ? value.trim() === "" : value === null
-    );
+    // Validaciones diferentes para edición vs creación
+    if (!isEditMode) {
+      const hasEmptyValues = Object.values(userFormData).some((value) =>
+        typeof value === "string" ? value.trim() === "" : value === null
+      );
 
-    if (hasEmptyValues) {
-      toast.warn("No se permiten campos vacios");
-      setIsLoading(false);
-      return;
-    }
+      if (hasEmptyValues) {
+        toast.warn("No se permiten campos vacios");
+        setIsLoading(false);
+        return;
+      }
 
-    if (userFormData.password !== userFormData.passwordConfirm) {
-      toast.warn("Las contraseñas no coinciden");
-      setIsLoading(false);
-      return;
+      if (userFormData.password !== userFormData.passwordConfirm) {
+        toast.warn("Las contraseñas no coinciden");
+        setIsLoading(false);
+        return;
+      }
     }
 
     try {
-      const createUserCall = async () => {
+      if (isEditMode && userToEdit) {
+        const userDataToEdit = {
+          id: userToEdit.id,
+          nombre: userFormData.nombre,
+          apellido: userFormData.apellido,
+          especialidad: userFormData.especialidad,
+          correo: userFormData.correo,
+          telefono: userFormData.telefono,
+          rol: userFormData.rol,
+          requesterId: currentUser!.id,
+        };
+        await editUser(userDataToEdit);
+        toast.success("Usuario actualizado con éxito");
+      } else {
         await createUser(userFormData);
+        toast.success("Usuario creado con éxito");
+      }
 
-        toast.success("Usuario creado con exito");
-        setUserFormData(INITIAL_USER_DATA);
-        onClose();
-      };
-      createUserCall();
+      setUserFormData(INITIAL_USER_DATA);
+      onClose();
     } catch (error) {
       toast.error("Error inesperado");
       console.log(error);
@@ -117,22 +157,24 @@ export default function UserForm({ onClose }: UserformProps) {
           </div>
 
           {/* Contraseña */}
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Contraseña
-            </label>
-            <input
-              onChange={handleChangeUserForm}
-              type="password"
-              id="password"
-              name="password"
-              value={userFormData.password}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-            />
-          </div>
+          {!isEditMode && (
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Contraseña
+              </label>
+              <input
+                onChange={handleChangeUserForm}
+                type="password"
+                id="password"
+                name="password"
+                value={userFormData.password}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+              />
+            </div>
+          )}
 
           {/* Rol */}
           <div>
@@ -194,22 +236,24 @@ export default function UserForm({ onClose }: UserformProps) {
           </div>
 
           {/* Confirmar Contraseña */}
-          <div>
-            <label
-              htmlFor="passwordConfirm"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Confirmar Contraseña
-            </label>
-            <input
-              onChange={handleChangeUserForm}
-              type="password"
-              id="passwordConfirm"
-              name="passwordConfirm"
-              value={userFormData.passwordConfirm}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
-            />
-          </div>
+          {!isEditMode && (
+            <div>
+              <label
+                htmlFor="passwordConfirm"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
+                Confirmar Contraseña
+              </label>
+              <input
+                onChange={handleChangeUserForm}
+                type="password"
+                id="passwordConfirm"
+                name="passwordConfirm"
+                value={userFormData.passwordConfirm}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent"
+              />
+            </div>
+          )}
 
           {/* Teléfono */}
           <div>
