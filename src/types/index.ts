@@ -34,3 +34,11 @@ export interface createAgendaData {
   pacienteId: number;
   requesterId: number;
 }
+export type filtersForAgenda = {
+  fechaini?: string;
+  fechafin?: string;
+  usuarioId?: number;
+  pacienteId?: number;
+  especialista?: string;
+  paciente?: string;
+};

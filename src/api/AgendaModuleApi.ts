@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { createAgendaData } from "../types";
+import type { createAgendaData, filtersForAgenda } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL + "Agenda";
 
@@ -12,5 +12,15 @@ export async function createAgenda(newAgenda: createAgendaData) {
     return data;
   } catch (error) {
     console.log(error);
+  }
+}
+
+export async function getAgendas(filters: filtersForAgenda) {
+  try {
+    const URL = `${API_URL}/SelectAgenda`;
+    const { data } = await axios.post(URL, filters);
+    return data;
+  } catch (error) {
+    console.error(error);
   }
 }
