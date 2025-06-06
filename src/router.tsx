@@ -4,13 +4,13 @@ import MainLayout from "./layouts/MainLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import PruebaAutismo from "./pages/PruebaAutismo";
-import Patient from "./pages/Patient";
 import Representante from "./pages/Representante";
 import WelcomePage from "./pages/WelcomePage";
 import HomeAndLoginLayout from "./layouts/HomeAndLoginLayout";
 import Pacientes from "./pages/Pacientes";
 import Users from "./pages/Users";
 import Auditoria from "./pages/Auditoria";
+import Agenda from "./pages/Agenda";
 
 export const routes = createBrowserRouter([
   {
@@ -21,7 +21,6 @@ export const routes = createBrowserRouter([
       { index: true, element: <Home /> },
       { path: "/login", element: <Login /> },
       { path: "/prueba-autismo", element: <PruebaAutismo /> },
-      { path: "/pacientes", element: <Pacientes /> },
     ],
   },
   {
@@ -30,9 +29,10 @@ export const routes = createBrowserRouter([
     children: [
       { index: true, element: <WelcomePage /> },
       { path: "/sistem/usuarios", element: <Users /> },
-      { path: "/sistem/paciente", element: <Patient /> },
+      { path: "/sistem/paciente", element: <Pacientes /> },
       { path: "/sistem/representante", element: <Representante /> },
       { path: "/sistem/auditoria", element: <Auditoria /> },
+      { path: "/sistem/agenda", element: <Agenda /> },
     ],
   },
 ]);

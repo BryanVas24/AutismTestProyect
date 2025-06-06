@@ -27,3 +27,10 @@ export interface UserFilters {
   especialidad?: string;
   rol?: string;
 }
+//Para agenda perro
+export interface createAgendaData {
+  fecha: string;
+  usuarioId: number;
+  pacienteId: number;
+  requesterId: number;
+}

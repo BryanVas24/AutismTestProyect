@@ -25,7 +25,6 @@ export async function getUsers(params: UserFilters = {}) {
         rol: params.rol || undefined,
       },
     });
-    console.log(data);
     return data.value;
   } catch (error) {
     console.error(error);
