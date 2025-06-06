@@ -11,6 +11,7 @@ import Pacientes from "./pages/Pacientes";
 import Users from "./pages/Users";
 import Auditoria from "./pages/Auditoria";
 import Agenda from "./pages/Agenda";
+import Dashboard from "./pages/Dashboard";
 
 export const routes = createBrowserRouter([
   {
@@ -33,6 +34,7 @@ export const routes = createBrowserRouter([
       { path: "/sistem/representante", element: <Representante /> },
       { path: "/sistem/auditoria", element: <Auditoria /> },
       { path: "/sistem/agenda", element: <Agenda /> },
+      { path: "/sistem/dashboard", element: <Dashboard /> },
     ],
   },
 ]);

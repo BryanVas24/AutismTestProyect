@@ -12,6 +12,8 @@ import { NavLink } from "react-router-dom";
 import { useStore } from "../../context/store";
 import { toast } from "react-toastify";
 import { AiOutlineAudit } from "react-icons/ai";
+import { TfiAgenda } from "react-icons/tfi";
+import { MdDashboard } from "react-icons/md";
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -36,6 +38,16 @@ export default function SideBar() {
       to: "/sistem/representante",
       icon: <GrUserManager size={20} />,
       label: "Representantes",
+    },
+    {
+      to: "/sistem/agenda",
+      icon: <TfiAgenda size={20} />,
+      label: "Agenda",
+    },
+    {
+      to: "/sistem/dashboard",
+      icon: <MdDashboard size={20} />,
+      label: "Dashboard",
     },
     ...(user?.rol == 2
       ? [
