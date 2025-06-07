@@ -32,13 +32,20 @@ export async function editPregunta(pregunta:any) {
   }
 }
 
-export async function eliminarPregunta(puntaje:any) {
-  try{
-    const response = await axios.delete(`${API_URL}Pregunta/EliminarPregunta`, puntaje);
+export async function eliminarPregunta(pregunta: any) {
+  try {
+    console.log(pregunta);
+    const response = await axios.delete(`${API_URL}Pregunta/EliminarPregunta`, {
+      data: pregunta, 
+      headers: {
+        'Content-Type': 'application/json', 
+      },
+    });
     console.log(response);
     return response;
   } catch (error) {
     console.error(error);
+    throw error;
   }
 }
 
@@ -53,7 +60,7 @@ export async function getPregunta({ id }: { id: string }) {
 }
 export async function listPuntajePreg(query:any){
     try{
-        const response = await axios.post(`${API_URL}PuntajePreg/SelectPuntajePreg`, query);
+        const response = await axios.post(`${API_URL}PuntajePreg/SelectPuntajesPreg`, query);
         console.log(response);
         return response;
     } catch (error){
@@ -81,19 +88,24 @@ export async function editPuntajePreg(puntaje:any) {
   }
 }
 
-export async function eliminarPuntajePreg(puntaje:any) {
-  try{
-    const response = await axios.delete(`${API_URL}PuntajePreg/EliminarPuntajePreg`, puntaje);
+export async function eliminarPuntajePreg(puntaje: any) {
+  try {
+    const response = await axios.delete(`${API_URL}PuntajePreg/EliminarPuntajePreg`, {
+      data: puntaje,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     console.log(response);
     return response;
   } catch (error) {
     console.error(error);
+    throw error;
   }
 }
-
 export async function getPuntajePreg({ id }: { id: string }) {
   try {
-    const puntaje = await axios.get(`${API_URL}PuntajePreg/SelectOnePuntajePreg/${id}`);
+    const puntaje = await axios.get(`${API_URL}PuntajePreg/SelectOnePuntajesPreg/${id}`);
     console.log(puntaje);
     return puntaje;
   } catch (error) {

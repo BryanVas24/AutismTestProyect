@@ -32,15 +32,22 @@ export async function editTest(test:any) {
   }
 }
 
-export async function eliminarTest(test:any) {
-  try{
-    const response = await axios.delete(`${API_URL}Test/EliminarTest`, test);
+export async function eliminarTest(test: any) {
+  try {
+    const response = await axios.delete(`${API_URL}Test/EliminarTest`, {
+      data: test,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
     console.log(response);
     return response;
   } catch (error) {
     console.error(error);
+    throw error;
   }
 }
+
 
 export async function listTest(nombre?: string, edad_min?: number, edad_max?: number) {
   try {

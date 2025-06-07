@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import { AiOutlineAudit } from "react-icons/ai";
 import { TfiAgenda } from "react-icons/tfi";
 import { MdDashboard } from "react-icons/md";
+import { AiOutlineContainer } from "react-icons/ai";
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -56,6 +57,11 @@ export default function SideBar() {
             icon: <AiOutlineAudit size={20} />,
             label: "Auditoría",
           },
+          {
+            to: "/sistem/tests",
+            icon: <AiOutlineContainer size={20} />,
+            label: "Tests",
+          },
         ]
       : []),
   ];
@@ -94,7 +100,7 @@ export default function SideBar() {
       >
         {/* esto puede ser el logo */}
         <div className="p-5 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-blue-600">ClinicaAutismo</h1>
+          <h1 className="text-xl font-bold text-blue-600">DownTec</h1>
           <p className="text-xs text-gray-500">Gestión de Pacientes</p>
         </div>
 
