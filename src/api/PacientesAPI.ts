@@ -1,10 +1,14 @@
 import axios from "axios";
+import type { filtersPacient } from "../types";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export async function getPacientes() {
+export async function getPacientes(filters: filtersPacient) {
   try {
-    const response = await axios.post(`${API_URL}Paciente/SelectPacientes`, {});
+    const response = await axios.post(
+      `${API_URL}Paciente/SelectPacientes`,
+      filters
+    );
     console.log(response);
     return response;
   } catch (error) {

@@ -9,6 +9,7 @@ type NewAgendaFormProps = {
   isLoading: boolean;
   pacients: any;
   requesterId: number;
+  onAgendaCreated: () => void;
 };
 
 export default function NewAgendaForm({
@@ -16,6 +17,7 @@ export default function NewAgendaForm({
   isLoading,
   pacients,
   requesterId,
+  onAgendaCreated,
 }: NewAgendaFormProps) {
   const AGENDA_DATA: createAgendaData = {
     fecha: "",
@@ -34,18 +36,13 @@ export default function NewAgendaForm({
     const { name, value } = e.target;
 
     if (name === "fecha") {
-      setDateInputValue(value); // Guardamos el valor para el input
-      const date = new Date(value);
-      if (!isNaN(date.getTime())) {
-        // Establecemos hora específica (14:00:00.000 por ejemplo)
-        date.setHours(14, 0, 0, 0);
-        const isoString = date.toISOString();
-        setNewAgendaData({
-          ...newAgendaData,
-          [name]: isoString,
-        });
-        return;
-      }
+      setDateInputValue(value);
+      const isoDate = `${value}T14:00:00.000Z`;
+      setNewAgendaData({
+        ...newAgendaData,
+        [name]: isoDate,
+      });
+      return;
     }
 
     setNewAgendaData({
@@ -63,6 +60,16 @@ export default function NewAgendaForm({
     e.preventDefault();
     setIsSubmiting(true);
 
+    const selectedDate = new Date(dateInputValue);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (selectedDate < today) {
+      toast.warn("No puedes crear citas en días anteriores a la fecha actual");
+      setIsSubmiting(false);
+      return;
+    }
+
     const hasEmptyValues = Object.values(newAgendaData).some((value) => {
       if (typeof value === "string") {
         return value.trim() === "";
@@ -79,7 +86,8 @@ export default function NewAgendaForm({
     try {
       await createAgenda(newAgendaData);
       toast.success("Agenda creada con éxito");
-      resetForm(); // Limpiamos el formulario
+      resetForm();
+      onAgendaCreated();
     } catch (error) {
       console.error(error);
       toast.error("No se pudo agendar la cita");

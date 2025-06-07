@@ -63,7 +63,7 @@ export type newTestDataType = {
   edad_min: number;
   edad_max: number;
   requesterId: number;
-}
+};
 
 export type TestDataToEdit = {
   id: number;
@@ -73,14 +73,14 @@ export type TestDataToEdit = {
   edad_min: number;
   edad_max: number;
   requesterId: number;
-}
+};
 //Para preguntas mmwebo
 export type newPreguntaDataType = {
   pregunta: string;
   num_pregunta: string;
   testId: number;
   requesterId: number;
-}
+};
 
 export type PreguDataToEdit = {
   id: number;
@@ -90,7 +90,7 @@ export type PreguDataToEdit = {
   edad_min: number;
   edad_max: number;
   requesterId: number;
-}
+};
 
 //Para Puntajes Preguntas caracara
 export type newPuntajePregType = {
@@ -98,7 +98,7 @@ export type newPuntajePregType = {
   valor: number;
   preguntaId: number;
   requesterId: number;
-}
+};
 
 export type PuntajePregToEdit = {
   id: number;
@@ -106,4 +106,14 @@ export type PuntajePregToEdit = {
   valor: number;
   preguntaId: number;
   requesterId: number;
-}
+};
+
+//esta onda es para los filtros de pacientes
+export type filtersPacient = {
+  iniciales?: string;
+  sexo?: boolean | null;
+  birthdate?: string;
+  telefono?: string;
+  correo?: string;
+  representante?: string;
+};

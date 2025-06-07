@@ -14,6 +14,7 @@ import {
   Input,
   DatePicker,
   Radio,
+  Select,
 } from "antd";
 import {
   UserOutlined,
@@ -29,6 +30,7 @@ import {
   ExperimentOutlined,
   IdcardOutlined,
   PlusOutlined,
+  FilterOutlined,
 } from "@ant-design/icons";
 import {
   getPacientes,
@@ -37,6 +39,7 @@ import {
   guardarRepresentante,
 } from "../api/PacientesAPI";
 import dayjs from "dayjs";
+import type { filtersPacient } from "../types";
 
 const { Title } = Typography;
 
@@ -79,17 +82,19 @@ const Paciente: React.FC = () => {
   const [detailLoading, setDetailLoading] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
   const [createModalVisible, setCreateModalVisible] = useState<boolean>(false);
+  const [filterModalVisible, setFilterModalVisible] = useState<boolean>(false);
   const [form] = Form.useForm();
+  const [filterForm] = Form.useForm();
 
   useEffect(() => {
-    fetchData();
+    fetchData({});
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (filters: filtersPacient) => {
     try {
       setLoading(true);
       setProgress(0);
-      const response = await getPacientes();
+      const response = await getPacientes(filters);
 
       if (response?.data?.status) {
         setPacientes(response.data.value);
@@ -98,6 +103,7 @@ const Paciente: React.FC = () => {
         message.error("No se pudieron cargar los pacientes");
       }
     } catch (error) {
+      console.error(error);
       message.error("Error al cargar los pacientes");
     } finally {
       setLoading(false);
@@ -120,7 +126,7 @@ const Paciente: React.FC = () => {
         message.success("Paciente creado exitosamente");
         setCreateModalVisible(false);
         form.resetFields();
-        fetchData();
+        fetchData({});
       } else {
         message.error(response?.data?.msg || "Error al crear el paciente");
       }
@@ -142,10 +148,39 @@ const Paciente: React.FC = () => {
         message.error("No se pudo cargar la información del paciente");
       }
     } catch (error) {
+      console.error(error);
       message.error("Error al cargar los detalles del paciente");
     } finally {
       setDetailLoading(false);
     }
+  };
+
+  const handleApplyFilters = async () => {
+    try {
+      const values = await filterForm.validateFields();
+      const filters: filtersPacient = {
+        ...values,
+        sexo:
+          values.sexo === "hombre"
+            ? true
+            : values.sexo === "mujer"
+            ? false
+            : null,
+        birthdate: values.birthdate
+          ? values.birthdate.format("YYYY-MM-DD")
+          : undefined,
+      };
+
+      await fetchData(filters);
+      setFilterModalVisible(false);
+    } catch (error) {
+      console.error("Error applying filters:", error);
+    }
+  };
+  const handleResetFilters = () => {
+    filterForm.resetFields();
+    fetchData({});
+    setFilterModalVisible(false);
   };
 
   const calcularEdad = (fechaNacimiento: string): number => {
@@ -184,6 +219,13 @@ const Paciente: React.FC = () => {
         <Title level={2} style={{ margin: 0 }}>
           Listado de Pacientes
         </Title>
+        <Button
+          style={{ marginRight: 16 }}
+          icon={<FilterOutlined />}
+          onClick={() => setFilterModalVisible(true)}
+        >
+          Filtrar
+        </Button>
         <Button
           type="primary"
           icon={<PlusOutlined />}
@@ -330,6 +372,75 @@ const Paciente: React.FC = () => {
           <Form.Item name="requesterId" label="ID del Solicitante" hidden>
             <Input type="number" />
           </Form.Item>
+        </Form>
+      </Modal>
+
+      <Modal
+        title="Filtrar Pacientes"
+        open={filterModalVisible}
+        onOk={handleApplyFilters}
+        onCancel={() => setFilterModalVisible(false)}
+        footer={[
+          <Button key="reset" onClick={handleResetFilters}>
+            Limpiar Filtros
+          </Button>,
+          <Button key="cancel" onClick={() => setFilterModalVisible(false)}>
+            Cancelar
+          </Button>,
+          <Button key="apply" type="primary" onClick={handleApplyFilters}>
+            Aplicar Filtros
+          </Button>,
+        ]}
+        width={700}
+      >
+        <Form form={filterForm} layout="vertical">
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="iniciales" label="Iniciales">
+                <Input placeholder="Filtrar por iniciales" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="sexo" label="Sexo">
+                <Select placeholder="Seleccione el sexo">
+                  <Select.Option value="hombre">Hombre</Select.Option>
+                  <Select.Option value="mujer">Mujer</Select.Option>
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="birthdate" label="Fecha de Nacimiento">
+                <DatePicker
+                  style={{ width: "100%" }}
+                  format="YYYY-MM-DD"
+                  disabledDate={(current) =>
+                    current && current > dayjs().endOf("day")
+                  }
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="telefono" label="Teléfono">
+                <Input placeholder="Filtrar por teléfono" />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item name="correo" label="Correo Electrónico">
+                <Input placeholder="Filtrar por correo" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item name="residencia" label="Residencia">
+                <Input placeholder="Filtrar por residencia" />
+              </Form.Item>
+            </Col>
+          </Row>
         </Form>
       </Modal>
     </div>
