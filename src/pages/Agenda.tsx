@@ -15,6 +15,7 @@ export default function Agenda() {
   const [especialists, setEspecialists] = useState<User[]>([]);
   const [pacients, setPacients] = useState([]);
   const [agendas, setAgendas] = useState<Agenda[]>([]);
+  const [filteredAgendas, setFilteredAgendas] = useState<Agenda[]>([]);
 
   // Estados para los filtros
   const [filters, setFilters] = useState<filtersForAgenda>({
@@ -45,7 +46,7 @@ export default function Agenda() {
   const loadPacients = async () => {
     setLoading(true);
     try {
-      const data = await getPacientes();
+      const data = await getPacientes({});
       if (data != null) setPacients(data.data.value);
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
@@ -73,11 +74,29 @@ export default function Agenda() {
       };
 
       const data = await getAgendas(apiFilters);
-      if (data.status) setAgendas(data.value);
+      if (data.status) {
+        setAgendas(data.value);
+        filterTodayAndUpcomingAgendas(data.value);
+      }
     } catch (error) {
       console.error(error);
     }
   }
+
+  const filterTodayAndUpcomingAgendas = (agendasList: Agenda[]) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Establecer a inicio del día
+
+    const filtered = agendasList.filter((agenda) => {
+      const agendaDate = new Date(agenda.fecha);
+      agendaDate.setHours(0, 0, 0, 0); // Ignorar la hora para comparación
+
+      // Mostrar agendas de hoy o futuras
+      return agendaDate >= today;
+    });
+
+    setFilteredAgendas(filtered);
+  };
 
   useEffect(() => {
     loadAgendas();
@@ -104,6 +123,10 @@ export default function Agenda() {
       fechaini: "",
       fechafin: "",
     });
+  };
+
+  const refreshAgendas = async () => {
+    await loadAgendas();
   };
 
   return (
@@ -198,11 +221,13 @@ export default function Agenda() {
 
       {/* Listado de agendas */}
       <section className="grid grid-cols-2 gap-5">
-        {agendas.length > 0 ? (
-          agendas.map((info) => <AgendaCardView key={info.id} agenda={info} />)
+        {filteredAgendas.length > 0 ? (
+          filteredAgendas.map((info) => (
+            <AgendaCardView key={info.id} agenda={info} />
+          ))
         ) : (
           <div className="col-span-2 text-center py-10 text-gray-500">
-            No se encontraron agendas con los filtros seleccionados
+            No se encontraron agendas para hoy o próximas
           </div>
         )}
       </section>
@@ -214,6 +239,7 @@ export default function Agenda() {
           isLoading={loading}
           pacients={pacients}
           requesterId={user!.id}
+          onAgendaCreated={refreshAgendas}
         />
       </Modal>
     </>

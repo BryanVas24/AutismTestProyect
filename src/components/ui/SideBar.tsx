@@ -6,6 +6,7 @@ import {
   FaBars,
   FaTimes,
   FaUserPlus,
+  FaDiagnoses,
 } from "react-icons/fa";
 import { GrUserManager } from "react-icons/gr";
 import { NavLink } from "react-router-dom";
@@ -14,6 +15,7 @@ import { toast } from "react-toastify";
 import { AiOutlineAudit } from "react-icons/ai";
 import { TfiAgenda } from "react-icons/tfi";
 import { MdDashboard } from "react-icons/md";
+import { AiOutlineContainer } from "react-icons/ai";
 
 export default function SideBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,12 +51,31 @@ export default function SideBar() {
       icon: <MdDashboard size={20} />,
       label: "Dashboard",
     },
+    {
+      to: "/sistem/prediagnostico",
+      icon: <FaDiagnoses size={20} />,
+      label: "Pre-Diagnóstico",
+    },
+    // ...(user?.rol == 0 || user?.rol == 1
+    //   ? [
+    //       {
+    //         to: "/sistem/prediagnostico",
+    //         icon: <FaDiagnoses size={20} />,
+    //         label: "Pre-Diagnóstico",
+    //       },
+    //     ]
+    //   : []),
     ...(user?.rol == 2
       ? [
           {
             to: "/sistem/auditoria",
             icon: <AiOutlineAudit size={20} />,
             label: "Auditoría",
+          },
+          {
+            to: "/sistem/tests",
+            icon: <AiOutlineContainer size={20} />,
+            label: "Tests",
           },
         ]
       : []),
@@ -94,7 +115,7 @@ export default function SideBar() {
       >
         {/* esto puede ser el logo */}
         <div className="p-5 border-b border-gray-200">
-          <h1 className="text-xl font-bold text-blue-600">ClinicaAutismo</h1>
+          <h1 className="text-xl font-bold text-blue-600">DownTec</h1>
           <p className="text-xs text-gray-500">Gestión de Pacientes</p>
         </div>
 

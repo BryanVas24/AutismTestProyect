@@ -29,21 +29,26 @@ export default function PreguntaForm({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    if (!testId || !user?.id) {
+      toast.error("Error al obtener testId o usuario");
+      return;
+    }
+
     if (isEditMode && preguntaToEdit) {
       setFormData({
         pregunta: preguntaToEdit.pregunta || "",
         num_pregunta: preguntaToEdit.num_pregunta || "",
-        testId: preguntaToEdit.testId,
-        requesterId: user!.id,
+        testId: testId,
+        requesterId: user.id,
       });
     } else {
       setFormData({
         ...INITIAL_DATA,
         testId,
-        requesterId: user!.id,
+        requesterId: user.id,
       });
     }
-  }, [isEditMode, preguntaToEdit]);
+  }, [isEditMode, preguntaToEdit, testId, user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -54,14 +59,22 @@ export default function PreguntaForm({
     e.preventDefault();
     setIsLoading(true);
 
-    if (!formData.pregunta.trim() || !formData.num_pregunta.trim()) {
+    const { pregunta, num_pregunta, testId } = formData;
+
+    if (!pregunta.trim() || !num_pregunta.trim()) {
       toast.warn("Todos los campos son obligatorios");
       setIsLoading(false);
       return;
     }
 
+    if (!testId || !user?.id) {
+      toast.error("Faltan datos necesarios para enviar");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      if (isEditMode) {
+      if (isEditMode && preguntaToEdit) {
         await editPregunta({ ...preguntaToEdit, ...formData });
         toast.success("Pregunta actualizada con éxito");
       } else {

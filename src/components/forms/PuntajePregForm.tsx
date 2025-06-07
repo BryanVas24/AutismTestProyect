@@ -29,25 +29,28 @@ export default function PuntajePregForm({
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    if (!preguntaId || !user?.id) {
+      toast.error("Error al obtener preguntaId o usuario");
+      return;
+    }
+
     if (isEditMode && puntajeToEdit) {
       setFormData({
         nombre: puntajeToEdit.nombre || "",
         valor: puntajeToEdit.valor || 0,
-        preguntaId: puntajeToEdit.preguntaId,
-        requesterId: user!.id,
+        preguntaId,
+        requesterId: user.id,
       });
     } else {
       setFormData({
         ...INITIAL_DATA,
         preguntaId,
-        requesterId: user!.id,
+        requesterId: user.id,
       });
     }
-  }, [isEditMode, puntajeToEdit]);
+  }, [isEditMode, puntajeToEdit, preguntaId, user]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -59,14 +62,28 @@ export default function PuntajePregForm({
     e.preventDefault();
     setIsLoading(true);
 
-    if (!formData.nombre.trim()) {
+    const { nombre, valor, preguntaId } = formData;
+
+    if (!nombre.trim()) {
       toast.warn("El campo nombre es obligatorio");
       setIsLoading(false);
       return;
     }
 
+    if (isNaN(valor) || valor < 0) {
+      toast.warn("El valor debe ser un número positivo");
+      setIsLoading(false);
+      return;
+    }
+
+    if (!preguntaId || !user?.id) {
+      toast.error("Faltan datos necesarios para enviar");
+      setIsLoading(false);
+      return;
+    }
+
     try {
-      if (isEditMode) {
+      if (isEditMode && puntajeToEdit) {
         await editPuntajePreg({ ...puntajeToEdit, ...formData });
         toast.success("Puntaje actualizado con éxito");
       } else {
@@ -102,6 +119,7 @@ export default function PuntajePregForm({
           value={formData.valor}
           onChange={handleChange}
           className="w-full border border-gray-300 rounded-md p-2 focus:ring-2 focus:ring-sky-500"
+          min={0}
         />
       </div>
 
