@@ -14,6 +14,7 @@ import Agenda from "./pages/Agenda";
 import Dashboard from "./pages/Dashboard";
 import Tests from "./pages/Test";
 import TestDetail from "./pages/TestDetail";
+import InicioPreDiagnostico from "./pages/InicioPreDiagnostico";
 
 export const routes = createBrowserRouter([
   {
@@ -37,8 +38,9 @@ export const routes = createBrowserRouter([
       { path: "/sistem/auditoria", element: <Auditoria /> },
       { path: "/sistem/agenda", element: <Agenda /> },
       { path: "/sistem/dashboard", element: <Dashboard /> },
-      { path: "/sistem/tests", element:<Tests />},
-      { path: "/sistem/tests/:id", element:<TestDetail />},
+      { path: "/sistem/tests", element: <Tests /> },
+      { path: "/sistem/tests/:id", element: <TestDetail /> },
+      { path: "/sistem/prediagnostico", element: <InicioPreDiagnostico /> },
     ],
   },
 ]);
