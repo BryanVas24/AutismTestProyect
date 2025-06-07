@@ -38,11 +38,21 @@ export async function guardarRepresentante(data: any) {
 
 export async function getPacienteById(id: number) {
   try {
-    const response = await axios.get(
+    const { data } = await axios.get(
       `${API_URL}Paciente/SelectOnePaciente/${id}`
     );
-    console.log(response);
-    return response;
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function getAgendaById(id: number) {
+  try {
+    const URL = `${API_URL}/SelectAgendaById/${id}`;
+    const { data } = await axios.get(URL);
+    console.log(data);
+    return data;
   } catch (error) {
     console.error(error);
   }

@@ -6,7 +6,6 @@ import {
   FaBars,
   FaTimes,
   FaUserPlus,
-  FaDiagnoses,
 } from "react-icons/fa";
 import { GrUserManager } from "react-icons/gr";
 import { NavLink } from "react-router-dom";
@@ -50,11 +49,6 @@ export default function SideBar() {
       to: "/sistem/dashboard",
       icon: <MdDashboard size={20} />,
       label: "Dashboard",
-    },
-    {
-      to: "/sistem/prediagnostico",
-      icon: <FaDiagnoses size={20} />,
-      label: "Pre-Diagnóstico",
     },
     // ...(user?.rol == 0 || user?.rol == 1
     //   ? [

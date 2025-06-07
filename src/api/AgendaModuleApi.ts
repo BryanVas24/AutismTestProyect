@@ -25,3 +25,14 @@ export async function getAgendas(filters: filtersForAgenda) {
     console.error(error);
   }
 }
+
+export async function getAgendaById(id: number) {
+  try {
+    const URL = `${API_URL}/SelectOneAgenda/${id}`;
+    const { data } = await axios.get(URL);
+    console.log(data);
+    return data;
+  } catch (error) {
+    console.error(error);
+  }
+}

@@ -34,7 +34,7 @@ export default function Tests() {
         filters.edad_min ? parseInt(filters.edad_min) : undefined,
         filters.edad_max ? parseInt(filters.edad_max) : undefined
       );
-      if (data?.data.value) setTests(data.data.value);
+      if (data?.value) setTests(data.value);
     } catch (err) {
       console.error("Error cargando tests", err);
     } finally {
@@ -49,10 +49,10 @@ export default function Tests() {
   const handleDelete = async (id: string) => {
     try {
       const deletePayload = {
-            id: +id,
-            requesterId: currentUser!.id,
-        };
-      console.log(deletePayload)
+        id: +id,
+        requesterId: currentUser!.id,
+      };
+      console.log(deletePayload);
       await eliminarTest(deletePayload);
       message.success("Test eliminado correctamente");
       handleLoadTests();
@@ -139,7 +139,9 @@ export default function Tests() {
                 <tr key={test.id} className="border-t">
                   <td className="p-3">{test.id}</td>
                   <td className="p-3">{test.nombre}</td>
-                  <td className="p-3">{test.edad_min} - {test.edad_max}</td>
+                  <td className="p-3">
+                    {test.edad_min} - {test.edad_max}
+                  </td>
                   <td className="p-3 flex gap-3">
                     <button
                       onClick={() => navigate(`/sistem/tests/${test.id}`)}
