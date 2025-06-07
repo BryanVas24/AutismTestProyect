@@ -7,6 +7,7 @@ import {
   FileTextOutlined,
 } from "@ant-design/icons";
 import { getAgendas } from "../api/AgendaModuleApi";
+import ModalAgenda from "../components/ModalAgenda";
 
 export type AgendaItem = {
   id: number;
@@ -31,15 +32,17 @@ type filtersForAgenda = {
 
 const Agenda: React.FC = () => {
   const [agendas, setAgendas] = useState<AgendaItem[]>([]);
+  const [agenda, setAgenda] = useState<AgendaItem | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [ismodalOpen, setModalOpen] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchAgendas = async () => {
       try {
         setLoading(true);
         const filters: filtersForAgenda = {
-          usuarioId: 2,
+          // usuarioId: 2,
         };
 
         const response = await getAgendas(filters);
@@ -94,9 +97,18 @@ const Agenda: React.FC = () => {
             key={agenda.id}
             agenda={agenda}
             formatDateTime={formatDateTime}
+            setAgenda={setAgenda}
+            setModalOpen={setModalOpen}
           />
         ))}
       </div>
+      {agenda && (
+        <ModalAgenda
+          open={ismodalOpen}
+          onClose={() => setModalOpen(false)}
+          agenda={agenda}
+        />
+      )}
     </div>
   );
 };
@@ -104,7 +116,9 @@ const Agenda: React.FC = () => {
 const AgendaCard: React.FC<{
   agenda: AgendaItem;
   formatDateTime: (dateString: string) => { date: string; time: string };
-}> = ({ agenda, formatDateTime }) => {
+  setAgenda: (ag: AgendaItem) => void;
+  setModalOpen: (open: boolean) => void;
+}> = ({ agenda, formatDateTime, setAgenda, setModalOpen }) => {
   const { date, time } = formatDateTime(agenda.fecha);
   const parsedEspecialista = agenda.especialista.split(" (");
   const nombreEspecialista = parsedEspecialista[0];
@@ -170,7 +184,13 @@ const AgendaCard: React.FC<{
       </div>
 
       <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex justify-end">
-        <button className="flex items-center space-x-1 px-3 py-1 rounded-lg text-sm font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200">
+        <button
+          onClick={() => {
+            setAgenda(agenda);
+            setModalOpen(true);
+          }}
+          className="flex items-center space-x-1 px-3 py-1 rounded-lg text-sm font-medium transition-colors bg-blue-100 text-blue-700 hover:bg-blue-200"
+        >
           <IdcardOutlined />
           <span>Detalles</span>
         </button>

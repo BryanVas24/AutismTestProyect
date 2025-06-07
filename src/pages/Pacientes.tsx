@@ -37,6 +37,7 @@ import {
   guardarRepresentante,
 } from "../api/PacientesAPI";
 import dayjs from "dayjs";
+import { formatDate } from "../utils/formatDate";
 
 const { Title } = Typography;
 
@@ -473,16 +474,6 @@ const PacienteDetailModal: React.FC<PacienteDetailModalProps> = ({
   const GenderIcon = paciente?.sexo ? ManOutlined : WomanOutlined;
   const genero = paciente?.sexo ? "Masculino" : "Femenino";
   const edad = paciente ? calcularEdad(paciente.birthdate) : 0;
-  const formatDate = (dateString: string) => {
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    };
-    return new Date(dateString).toLocaleDateString("es-ES", options);
-  };
 
   const handleAddRepresentante = async () => {
     try {
