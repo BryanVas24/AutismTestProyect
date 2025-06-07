@@ -56,9 +56,9 @@ const TestResultsViewer: React.FC = () => {
     testId: string;
   }>();
   const componentRef = useRef<HTMLDivElement>(null);
-  const print = useReactToPrint({
-    content: () => componentRef.current,
-  } as any);
+  const printResult = useReactToPrint({
+      content: () => document.getElementById('printable-content') || document.createElement('div'),
+  }as any);
   const navigate = useNavigate();
   const [data, setData] = useState<TestResultData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -131,61 +131,107 @@ const TestResultsViewer: React.FC = () => {
     return age;
   };
 
-  const handleSubmitDiagnostic = async (values: {
+  const handlePrintOnly = async (values: {
     prediagnostico: string;
     privado: string;
     publico: string;
     veredicto: string;
   }) => {
+    const updatedPrediag = {
+      prediagnostico: values.prediagnostico,
+      privado: values.privado,
+      publico: values.publico,
+      veredicto: values.veredicto,
+      agendaId: agendaId ? parseInt(agendaId) : 1,
+      testId: testId ? parseInt(testId) : 1,
+    };
+
+    setData((prev) => prev ? { ...prev, prediagnostico: updatedPrediag } : null);
+    setShowDiagnosticForm(false);
+    
+    // Esperar a que React actualice el DOM
+    await new Promise((res) => setTimeout(res, 500));
+
+    // Crear una ventana nueva para imprimir
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    // Obtener el contenido a imprimir
+    const printContent = document.getElementById('printable-content');
+    if (!printContent) return;
+
+    // Clonar el nodo para no afectar el DOM original
+    const contentClone = printContent.cloneNode(true) as HTMLElement;
+
+    // Agregar estilos necesarios
+    const styles = `
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        .ant-card { margin-bottom: 20px; border: 1px solid #f0f0f0; }
+        .ant-card-head { background: #fafafa; padding: 0 20px; }
+        .ant-card-body { padding: 20px; }
+        .ant-table { width: 100%; margin-top: 20px; }
+        .ant-tag { margin-right: 8px; }
+        .grid { display: grid; gap: 16px; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .md\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        .md\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .gap-4 { gap: 16px; }
+        .font-semibold { font-weight: 600; }
+        .text-center { text-align: center; }
+        .py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+        /* Agrega otros estilos necesarios aquí */
+      </style>
+    `;
+
+    // Configurar el contenido de la nueva ventana
+    printWindow.document.open();
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>Resultados de Prueba</title>
+          ${styles}
+        </head>
+        <body>
+          ${contentClone.innerHTML}
+          <script>
+            // Imprimir automáticamente cuando se cargue la ventana
+            window.onload = function() {
+              setTimeout(function() {
+                window.print();
+                window.close();
+              }, 200);
+            };
+          </script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  };
+
+  const handleCloseCase = async () => {
+    if (!data?.prediagnostico || !token) {
+      return message.error("No hay diagnóstico para enviar.");
+    }
+
     try {
       setSubmitting(true);
-      if (!token || !data) return;
-
-      // 1. Actualizar los datos del prediagnóstico en pantalla
-      const updatedPrediag = {
-        prediagnostico: values.prediagnostico,
-        privado: values.privado,
-        publico: values.publico,
-        veredicto: values.veredicto,
-        agendaId: agendaId ? parseInt(agendaId) : 1,
-        testId: testId ? parseInt(testId) : 1,
-      };
-      setData((prev) =>
-        prev
-          ? {
-              ...prev,
-              prediagnostico: updatedPrediag,
-            }
-          : null
-      );
-
-      // 2. Esperar a que React re-renderice para asegurar que se vea en pantalla
-      await new Promise((resolve) => setTimeout(resolve, 300));
-
-      // 3. Imprimir la sección visible
-      await print();
-
-      // 4. Enviar al backend
       const response = await closeTest({
-        diagnostico: updatedPrediag,
+        diagnostico: data.prediagnostico,
         enlace: token,
       });
 
       if (response?.status) {
         message.success("Caso cerrado exitosamente");
-        setShowDiagnosticForm(false);
         setIsCaseClosed(true);
-
-        // 5. Redirigir
+        setShowDiagnosticForm(false);
         navigate("/sistem/dashboard");
       } else {
         throw new Error(response?.data?.msg || "Error al cerrar el caso");
       }
     } catch (err) {
       console.error("Error al cerrar el caso:", err);
-      message.error(
-        err instanceof Error ? err.message : "Error al cerrar el caso"
-      );
+      message.error("Error al cerrar el caso");
     } finally {
       setSubmitting(false);
     }
@@ -260,8 +306,8 @@ const TestResultsViewer: React.FC = () => {
   const gender = data.paciente.sexo ? "Masculino" : "Femenino";
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div ref={componentRef}> 
+    <div className="container mx-auto px-4 py-6" >
+      <div ref={componentRef} id="printable-content"> 
         <div className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-bold text-gray-800">
             Resultados de la Prueba en Tiempo Real
@@ -375,89 +421,40 @@ const TestResultsViewer: React.FC = () => {
 
       {/* Modal del formulario de diagnóstico */}
       <Modal
-        title="Completar Diagnóstico y Cerrar Caso"
-        visible={showDiagnosticForm}
-        onCancel={() => setShowDiagnosticForm(false)}
-        footer={null}
-        width={800}
-      >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmitDiagnostic}
-          initialValues={{
-            prediagnostico: data.prediagnostico?.prediagnostico || "",
-            privado: data.prediagnostico?.privado || "",
-            publico: data.prediagnostico?.publico || "",
-            veredicto: data.prediagnostico?.veredicto || "",
-          }}
+          title="Completar Diagnóstico"
+          visible={showDiagnosticForm}
+          onCancel={() => setShowDiagnosticForm(false)}
+          footer={null}
+          destroyOnClose
         >
-          <Form.Item
-            name="prediagnostico"
-            label="Prediagnóstico (Interno)"
-            rules={[
-              {
-                required: true,
-                message: "Por favor ingrese el prediagnóstico",
-              },
-            ]}
+          <Form
+            form={form}
+            layout="vertical"
+            onFinish={handlePrintOnly} // Esta es la acción del primer botón
           >
-            <TextArea rows={3} />
-          </Form.Item>
+            <Form.Item name="prediagnostico" label="Resumen Público">
+              <TextArea rows={2} />
+            </Form.Item>
+            <Form.Item name="publico" label="Informe Público">
+              <TextArea rows={2} />
+            </Form.Item>
+            <Form.Item name="privado" label="Informe Privado">
+              <TextArea rows={2} />
+            </Form.Item>
+            <Form.Item name="veredicto" label="Veredicto">
+              <Input />
+            </Form.Item>
 
-          <Form.Item
-            name="privado"
-            label="Notas Privadas"
-            rules={[
-              {
-                required: true,
-                message: "Por favor ingrese las notas privadas",
-              },
-            ]}
-          >
-            <TextArea rows={3} />
-          </Form.Item>
-
-          <Form.Item
-            name="publico"
-            label="Diagnóstico Público"
-            rules={[
-              {
-                required: true,
-                message: "Por favor ingrese el diagnóstico público",
-              },
-            ]}
-          >
-            <TextArea rows={3} />
-          </Form.Item>
-
-          <Form.Item
-            name="veredicto"
-            label="Veredicto Final"
-            rules={[
-              { required: true, message: "Por favor ingrese el veredicto" },
-            ]}
-          >
-            <Input />
-          </Form.Item>
-
-          <Form.Item>
-            <div className="flex justify-end space-x-4">
-              <Button onClick={() => setShowDiagnosticForm(false)}>
-                Cancelar
+            <div className="flex justify-end space-x-2">
+              <Button htmlType="submit" type="default" loading={submitting}>
+                Guardar e Imprimir
               </Button>
-              <Button
-                type="primary"
-                htmlType="submit"
-                loading={submitting}
-                disabled={isCaseClosed}
-              >
+              <Button onClick={handleCloseCase} type="primary" loading={submitting}>
                 Cerrar Caso
               </Button>
             </div>
-          </Form.Item>
-        </Form>
-      </Modal>
+          </Form>
+        </Modal>
     </div>
   );
 };
