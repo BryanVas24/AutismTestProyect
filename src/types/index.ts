@@ -28,6 +28,18 @@ export interface UserFilters {
   rol?: string;
 }
 //Para agenda perro
+export type Agenda = {
+  id: number;
+  especialista: string;
+  fecha: string;
+  pacienteId: number;
+  pacienteIniciales: string;
+  prediagnostico: string | null;
+  requesterId: number | null;
+  resumen: string;
+  usuarioId: number;
+};
+
 export interface createAgendaData {
   fecha: string;
   usuarioId: number;

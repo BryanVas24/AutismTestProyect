@@ -19,6 +19,7 @@ export async function getAgendas(filters: filtersForAgenda) {
   try {
     const URL = `${API_URL}/SelectAgenda`;
     const { data } = await axios.post(URL, filters);
+    console.log(data);
     return data;
   } catch (error) {
     console.error(error);
