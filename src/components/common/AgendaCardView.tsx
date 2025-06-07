@@ -10,7 +10,7 @@ export default function AgendaCardView({ agenda }: AgendaCardProps) {
       <div className="flex justify-between items-start">
         <div>
           <h3 className="text-lg font-semibold text-gray-800">
-            {agenda.prediagnostico || "Consulta sin prediagnóstico"}
+            {agenda.prediagnostico?.prediagnostico || "Consulta sin prediagnóstico"}
           </h3>
           <p className="text-sm text-gray-600 mt-1">
             <span className="font-medium">Paciente:</span>{" "}

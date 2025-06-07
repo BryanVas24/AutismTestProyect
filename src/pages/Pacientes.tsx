@@ -141,9 +141,9 @@ const Paciente: React.FC = () => {
     try {
       setDetailLoading(true);
       const response = await getPacienteById(id);
-
-      if (response?.data?.status) {
-        setSelectedPaciente(response.data.value);
+      console.log(response.value)
+      if (response?.status) {
+        setSelectedPaciente(response.value);
         setModalVisible(true);
       } else {
         message.error("No se pudo cargar la información del paciente");
@@ -905,38 +905,6 @@ const PacienteDetailModal: React.FC<PacienteDetailModalProps> = ({
                                             .sistema_puntaje
                                         }
                                       </p>
-
-                                      <h6 className="font-medium mb-2">
-                                        Preguntas:
-                                      </h6>
-                                      <div className="space-y-3">
-                                        {agenda.prediagnostico.test.preguntas.map(
-                                          (pregunta: any) => (
-                                            <div
-                                              key={pregunta.id}
-                                              className="p-2 bg-white rounded border"
-                                            >
-                                              <p className="font-medium text-sm">
-                                                {pregunta.num_pregunta}.{" "}
-                                                {pregunta.pregunta}
-                                              </p>
-                                              <div className="mt-1">
-                                                {pregunta.puntajepregs.map(
-                                                  (puntaje: any) => (
-                                                    <Tag
-                                                      key={puntaje.id}
-                                                      className="m-1"
-                                                    >
-                                                      {puntaje.nombre}:{" "}
-                                                      {puntaje.valor}
-                                                    </Tag>
-                                                  )
-                                                )}
-                                              </div>
-                                            </div>
-                                          )
-                                        )}
-                                      </div>
                                     </Collapse.Panel>
                                   </Collapse>
                                 </div>

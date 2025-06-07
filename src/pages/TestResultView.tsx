@@ -1,5 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
+import { useReactToPrint } from "react-to-print";
+import { useNavigate } from "react-router-dom";
 import { SyncOutlined, EditOutlined } from "@ant-design/icons";
 import {
   Table,
@@ -53,6 +55,11 @@ const TestResultsViewer: React.FC = () => {
     agendaId: string;
     testId: string;
   }>();
+  const componentRef = useRef<HTMLDivElement>(null);
+  const print = useReactToPrint({
+    content: () => componentRef.current,
+  } as any);
+  const navigate = useNavigate();
   const [data, setData] = useState<TestResultData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -134,7 +141,8 @@ const TestResultsViewer: React.FC = () => {
       setSubmitting(true);
       if (!token || !data) return;
 
-      const diagnosticData = {
+      // 1. Actualizar los datos del prediagnóstico en pantalla
+      const updatedPrediag = {
         prediagnostico: values.prediagnostico,
         privado: values.privado,
         publico: values.publico,
@@ -142,9 +150,24 @@ const TestResultsViewer: React.FC = () => {
         agendaId: agendaId ? parseInt(agendaId) : 1,
         testId: testId ? parseInt(testId) : 1,
       };
+      setData((prev) =>
+        prev
+          ? {
+              ...prev,
+              prediagnostico: updatedPrediag,
+            }
+          : null
+      );
 
+      // 2. Esperar a que React re-renderice para asegurar que se vea en pantalla
+      await new Promise((resolve) => setTimeout(resolve, 300));
+
+      // 3. Imprimir la sección visible
+      await print();
+
+      // 4. Enviar al backend
       const response = await closeTest({
-        diagnostico: diagnosticData,
+        diagnostico: updatedPrediag,
         enlace: token,
       });
 
@@ -152,7 +175,9 @@ const TestResultsViewer: React.FC = () => {
         message.success("Caso cerrado exitosamente");
         setShowDiagnosticForm(false);
         setIsCaseClosed(true);
-        fetchData(); // Refrescar los datos
+
+        // 5. Redirigir
+        navigate("/sistem/dashboard");
       } else {
         throw new Error(response?.data?.msg || "Error al cerrar el caso");
       }
@@ -236,110 +261,116 @@ const TestResultsViewer: React.FC = () => {
 
   return (
     <div className="container mx-auto px-4 py-6">
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold text-gray-800">
-          Resultados de la Prueba en Tiempo Real
-        </h1>
-        <div className="flex items-center text-sm text-gray-500">
-          <SyncOutlined spin className="mr-1" />
-          <span>Última actualización: {lastUpdated}</span>
-        </div>
-      </div>
-
-      {/* Información del paciente */}
-      <Card title="Información del Paciente" className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <p className="font-semibold">Iniciales</p>
-            <p>{data.paciente.iniciales}</p>
-          </div>
-          <div>
-            <p className="font-semibold">Edad</p>
-            <p>{age} años</p>
-          </div>
-          <div>
-            <p className="font-semibold">Género</p>
-            <p>{gender}</p>
+      <div ref={componentRef}> 
+        <div className="flex justify-between items-center mb-4">
+          <h1 className="text-2xl font-bold text-gray-800">
+            Resultados de la Prueba en Tiempo Real
+          </h1>
+          <div className="flex items-center text-sm text-gray-500">
+            <SyncOutlined spin className="mr-1" />
+            <span>Última actualización: {lastUpdated}</span>
           </div>
         </div>
-      </Card>
 
-      {/* Información de la prueba */}
-      <Card title="Información de la Prueba" className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <p className="font-semibold">Nombre</p>
-            <p>{data.test.nombre}</p>
-          </div>
-          <div>
-            <p className="font-semibold">Descripción</p>
-            <p>{data.test.descripcion}</p>
-          </div>
-          <div>
-            <p className="font-semibold">Sistema de Puntaje</p>
-            <p>{data.test.sistemaPuntaje}</p>
-          </div>
-          <div>
-            <p className="font-semibold">Rango de Edad</p>
-            <p>
-              {data.test.edadMin} - {data.test.edadMax} años
-            </p>
-          </div>
-        </div>
-      </Card>
-
-      {/* Prediagnóstico */}
-      <Card
-        title={
-          <div className="flex justify-between items-center">
-            <span>Prediagnóstico</span>
-            {!isCaseClosed && (
-              <Button
-                type="primary"
-                icon={<EditOutlined />}
-                onClick={() => setShowDiagnosticForm(true)}
-              >
-                Completar Diagnóstico
-              </Button>
-            )}
-          </div>
-        }
-        className="mb-6"
-      >
-        {data.prediagnostico ? (
+        {/* Información del paciente */}
+        <Card title="Información del Paciente" className="mb-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <p className="font-semibold">Público</p>
-              <p>{data.prediagnostico.publico || "No disponible"}</p>
+              <p className="font-semibold">Iniciales</p>
+              <p>{data.paciente.iniciales}</p>
             </div>
             <div>
-              <p className="font-semibold">Privado</p>
-              <p>{data.prediagnostico.privado || "No disponible"}</p>
+              <p className="font-semibold">Edad</p>
+              <p>{age} años</p>
             </div>
             <div>
-              <p className="font-semibold">Veredicto</p>
-              <p>{data.prediagnostico.veredicto || "No disponible"}</p>
+              <p className="font-semibold">Género</p>
+              <p>{gender}</p>
             </div>
           </div>
-        ) : (
-          <p>No se ha realizado un diagnóstico aún</p>
-        )}
-      </Card>
+        </Card>
 
-      {/* Respuestas del paciente */}
-      <Card title="Respuestas del Paciente">
-        <Table
-          columns={columns}
-          dataSource={data.respuestas}
-          rowKey="numPregunta"
-          pagination={false}
-          loading={loading}
-          scroll={{ x: true }}
-        />
-      </Card>
+        {/* Información de la prueba */}
+        <Card title="Información de la Prueba" className="mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div>
+              <p className="font-semibold">Nombre</p>
+              <p>{data.test.nombre}</p>
+            </div>
+            <div>
+              <p className="font-semibold">Descripción</p>
+              <p>{data.test.descripcion}</p>
+            </div>
+            <div>
+              <p className="font-semibold">Sistema de Puntaje</p>
+              <p>{data.test.sistemaPuntaje}</p>
+            </div>
+            <div>
+              <p className="font-semibold">Rango de Edad</p>
+              <p>
+                {data.test.edadMin} - {data.test.edadMax} años
+              </p>
+            </div>
+          </div>
+        </Card>
 
-      <div className="mt-4 text-sm text-gray-500">
-        <p>Token de enlace: {data.enlace}</p>
+        {/* Prediagnóstico */}
+        <Card
+          title={
+            <div className="flex justify-between items-center">
+              <span>Prediagnóstico</span>
+              {!isCaseClosed && (
+                <Button
+                  type="primary"
+                  icon={<EditOutlined />}
+                  onClick={() => setShowDiagnosticForm(true)}
+                >
+                  Completar Diagnóstico
+                </Button>
+              )}
+            </div>
+          }
+          className="mb-6"
+        >
+          {data.prediagnostico ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <p className="font-semibold">Público</p>
+                <p>{data.prediagnostico.prediagnostico || "No disponible"}</p>
+              </div>
+              <div>
+                <p className="font-semibold">Público</p>
+                <p>{data.prediagnostico.publico || "No disponible"}</p>
+              </div>
+              <div>
+                <p className="font-semibold">Privado</p>
+                <p>{data.prediagnostico.privado || "No disponible"}</p>
+              </div>
+              <div>
+                <p className="font-semibold">Veredicto</p>
+                <p>{data.prediagnostico.veredicto || "No disponible"}</p>
+              </div>
+            </div>
+          ) : (
+            <p>No se ha realizado un diagnóstico aún</p>
+          )}
+        </Card>
+
+        {/* Respuestas del paciente */}
+        <Card title="Respuestas del Paciente">
+          <Table
+            columns={columns}
+            dataSource={data.respuestas}
+            rowKey="numPregunta"
+            pagination={false}
+            loading={loading}
+            scroll={{ x: true }}
+          />
+        </Card>
+
+        <div className="mt-4 text-sm text-gray-500">
+          <p>Token de enlace: {data.enlace}</p>
+        </div>
       </div>
 
       {/* Modal del formulario de diagnóstico */}

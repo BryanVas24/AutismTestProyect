@@ -15,7 +15,7 @@ export type AgendaItem = {
   resumen: string;
   usuarioId: number;
   pacienteId: number;
-  prediagnostico: string | null;
+  prediagnostico: any;
   especialista: string;
   pacienteIniciales: string;
   requesterId: number | null;
@@ -176,7 +176,7 @@ const AgendaCard: React.FC<{
             <div>
               <p className="text-xs text-gray-500">Prediagnóstico</p>
               <p className="font-medium text-gray-800">
-                {agenda.prediagnostico}
+                {agenda.prediagnostico.prediagnostico}
               </p>
             </div>
           </div>

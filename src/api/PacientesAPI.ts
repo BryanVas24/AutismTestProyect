@@ -41,6 +41,7 @@ export async function getPacienteById(id: number) {
     const { data } = await axios.get(
       `${API_URL}Paciente/SelectOnePaciente/${id}`
     );
+    console.log(data)
     return data;
   } catch (error) {
     console.error(error);

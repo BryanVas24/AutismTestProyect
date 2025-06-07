@@ -44,10 +44,10 @@ const ModalAgenda = ({ open, onClose, agenda }: agendaProps) => {
   const getPaciente = async () => {
     const response: AxiosResponse<IResponse<Paciente>> | undefined =
       await getPacienteById(agenda.pacienteId);
-    if (response?.data.status) {
-      setPaciente(response.data.value ?? null);
+    if (response?.status) {
+      setPaciente(response.value ?? null);
     } else {
-      toast.error(response?.data.msg);
+      toast.error(response?.msg);
     }
   };
   useEffect(() => {
@@ -278,7 +278,7 @@ const ModalAgenda = ({ open, onClose, agenda }: agendaProps) => {
               <p className="text-xs text-gray-500">Prediagnóstico</p>
               <span className="text-gray-700">
                 {agenda?.prediagnostico ? (
-                  agenda?.prediagnostico
+                  agenda?.prediagnostico.prediagnostico
                 ) : (
                   <a
                     href={`/sistem/prediagnostico/${agenda.id}`}

@@ -25,20 +25,11 @@ export default function SideBar() {
 
   const navLinks = [
     { to: "/sistem", icon: <FaHome size={20} />, label: "Inicio" },
-    {
-      to: "/sistem/usuarios",
-      icon: <FaUserPlus size={20} />,
-      label: "Usuarios",
-    },
+    
     {
       to: "/sistem/paciente",
       icon: <FaUserInjured size={20} />,
       label: "Pacientes",
-    },
-    {
-      to: "/sistem/representante",
-      icon: <GrUserManager size={20} />,
-      label: "Representantes",
     },
     {
       to: "/sistem/agenda",
@@ -71,6 +62,11 @@ export default function SideBar() {
             icon: <AiOutlineContainer size={20} />,
             label: "Tests",
           },
+          {
+          to: "/sistem/usuarios",
+          icon: <FaUserPlus size={20} />,
+          label: "Usuarios",
+        },
         ]
       : []),
   ];
