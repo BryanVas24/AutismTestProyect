@@ -225,7 +225,7 @@ const TestResultsViewer: React.FC = () => {
         message.success("Caso cerrado exitosamente");
         setIsCaseClosed(true);
         setShowDiagnosticForm(false);
-        navigate("/sistem/dashboard");
+        // navigate("/sistem/dashboard");
       } else {
         throw new Error(response?.data?.msg || "Error al cerrar el caso");
       }
@@ -396,6 +396,9 @@ const TestResultsViewer: React.FC = () => {
                 <p className="font-semibold">Veredicto</p>
                 <p>{data.prediagnostico.veredicto || "No disponible"}</p>
               </div>
+              <Button onClick={handleCloseCase} type="primary" loading={submitting}>
+                Cerrar Caso
+              </Button>
             </div>
           ) : (
             <p>No se ha realizado un diagnóstico aún</p>
@@ -449,9 +452,7 @@ const TestResultsViewer: React.FC = () => {
               <Button htmlType="submit" type="default" loading={submitting}>
                 Guardar e Imprimir
               </Button>
-              <Button onClick={handleCloseCase} type="primary" loading={submitting}>
-                Cerrar Caso
-              </Button>
+              
             </div>
           </Form>
         </Modal>
